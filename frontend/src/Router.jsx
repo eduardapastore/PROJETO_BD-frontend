@@ -8,7 +8,7 @@ import Colaboradores from './pages/Colaboradores'
 import Financeiro from './pages/Financeiro'
 import Estoque from './pages/Estoque'
 import Suporte from './pages/Suporte'
-
+import Procedimentos from './pages/Procedimentos'
 
 const Router = () => {
   return (
@@ -22,6 +22,7 @@ const Router = () => {
                 <Route path='/colaboradores' element={<Colaboradores />} />
                 <Route path='/financeiro' element={<Financeiro />}/>
                 <Route path='/estoque' element={<Estoque />}/>
+                <Route path='/procedimentos' element={<Procedimentos />}/>
                 <Route path='/suporte' element={<Suporte />}/>
                 {/* Adiciona do mesmo jeito aqui outras páginas */}
             </Routes>

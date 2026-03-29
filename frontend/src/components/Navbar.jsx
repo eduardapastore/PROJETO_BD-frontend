@@ -83,7 +83,19 @@ const Navbar = () => {
             <p>Estoque</p>
           </button>
         </a>
+        <a href='/procedimentos'>
+            <button 
+            id='procedures' 
+            className={`flex gap-6 transition-colors duration-100 ${
+              isActive('/procedimentos') ? 'text-black font-semibold' : 'text-gray-600 hover:text-black'
+            }`}
+          >
+            <i className="bi bi-inboxes"></i>
+            <p>Procedimentos</p>
+          </button>
+        </a>
       </div>
+      
 
       <hr className='border-slate-400 my-4'/>
 

@@ -310,7 +310,7 @@ const Estoque = () => {
       <section className="p-6 w-screen h-full">
         {/* Header */}
         <div className="flex justify-between mb-3">
-          <h2 className="font-semibold">Estoque</h2>
+          <h2 className='font-semibold text-lg'>Estoque</h2>
 
           <div className="flex gap-2">
             <div

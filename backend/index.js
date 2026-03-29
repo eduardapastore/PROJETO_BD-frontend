@@ -30,6 +30,8 @@ const fornecedoresRoutes = require('./routes/estoque/fornecedores');
 app.use('/fornecedores', fornecedoresRoutes);
 const clienteRoutes = require('./routes/servico/cliente');
 app.use('/cliente', clienteRoutes);
+const ordensservRoutes = require('./routes/servico/ordens_servico');
+app.use('/ordens_servico', ordensservRoutes);
 
 
 
