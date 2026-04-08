@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { auth } from "../firebaseConfig";
-import { signInWithEmailAndPassword } from "firebase/auth";
 
 const Login = () => {
   const [login, setarlogin] = useState('');
@@ -35,31 +33,21 @@ const Login = () => {
     }
   };
 
-  function Login() {
-  const handleLogin = async (email, password) => {
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log("Usuário logado!", userCredential.user);
-      // Aqui, se o 2FA estiver ativo, o Firebase vai disparar o erro 
-      // 'auth/multi-factor-auth-required' e você mostra a tela do código.
-    } catch (error) {
-      console.error("Erro no login", error.code);
-    }
-  };
+
   
 
   return (
-    <div className='flex min-h-screen bg-orange-50'>
+    <div className='flex min-h-screen bg-transparent'>
       {/* Lado esquerdo - Imagem */}
       <div 
         className="w-1/2 min-h-screen bg-cover bg-center bg-no-repeat relative"
-        style={{ backgroundImage: "url('/src/imgs/signimg.png')" }}
+        style={{ backgroundImage: "url('repos/src/imgs/signimg.png') width: 100%; height: 100%;" }}
       >
       </div>
 
       {/* Lado direito - Login */}
       <div className='p-5 w-1/2 justify-center items-center flex flex-col gap-6'>
-        <img src='/src/imgs/Glamsync.png' width="256px" alt="Logo" />
+        <img src='repos/src/imgs/GlamSys.svg' width="256px" alt="Logo" />
         
         <input 
           type='text'
