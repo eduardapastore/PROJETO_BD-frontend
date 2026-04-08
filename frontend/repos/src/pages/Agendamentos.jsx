@@ -121,7 +121,7 @@ const Agendamentos = () => {
         <div className='flex justify-between items-center mb-6'>
           <h2 className='font-bold text-2xl text-gray-800'>Agendamentos</h2>
           <div className='flex gap-2'>
-            <button onClick={() => setModalAberto(true)} className='bg-green-600 font-semibold text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center gap-2 text-sm transition-all'>
+            <button onClick={() => setModalAberto(true)} className='bg-amber-600 font-semibold text-white px-4 py-2 rounded-md hover:bg-amber-700 flex items-center gap-2 text-sm transition-all'>
               <i className="bi bi-calendar-plus"></i> Novo Agendamento
             </button>
           </div>
