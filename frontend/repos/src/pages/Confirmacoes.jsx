@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Navbar from '../components/Navbar'
+import Navbar from '../../components/Navbar';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -10,7 +10,7 @@ import InputMask from "react-input-mask";
 import axios from 'axios';
 
 
-const Procedimentos = () => {
+const Confirmacoes = () => {
     const [ordensServico, setOrdensServico] = useState([]);
     useEffect(() => {
         //servicos
@@ -33,7 +33,7 @@ const Procedimentos = () => {
 
             <section className="p-6 w-screen h-full overflow-y-auto flex flex-col gap-4">
             <h2 className="text-lg font-semibold mb-4">
-                    Procedimentos
+                    Confirmacoes
                 </h2>
                 {/* 🔹 Abas */}
                 <div className="flex gap-2">
@@ -97,4 +97,4 @@ const Procedimentos = () => {
 };
 
 
-export default Procedimentos;
+export default Confirmacoes;
