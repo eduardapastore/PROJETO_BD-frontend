@@ -81,7 +81,7 @@ const Confirmacoes = () => {
             {modalAberto && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[999] p-4 backdrop-blur-sm">
                     <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
-                        <div className={`p-4 ${ordemSelecionada.status === 'PAGO' ? 'bg-green-600' : 'bg-amber-500'} text-white`}>
+                        <div className={`p-4 ${ordemSelecionada.status === 'REALIZADO' ? 'bg-green-600' : 'bg-amber-500'} text-white`}>
                             <div className="flex justify-between items-start">
                                 <div>
                                     <p className="text-xs opacity-80 uppercase font-bold">Detalhes do Agendamento</p>
@@ -116,7 +116,7 @@ const Confirmacoes = () => {
                             </div>
 
                             <div className="flex gap-2 mt-4">
-                                {ordemSelecionada.status !== 'PAGO' && (
+                                {ordemSelecionada.status !== 'REALIZADO' && (
                                     <button 
                                         onClick={confirmarPagamento}
                                         className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-green-100"
