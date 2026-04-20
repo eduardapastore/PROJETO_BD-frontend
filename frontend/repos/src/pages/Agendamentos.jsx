@@ -12,7 +12,7 @@ const Agendamentos = () => {
   const [eventos, setEventos] = useState([]);
   const [servicos, setServicos] = useState([]);
   const [colaboradores, setColaborador] = useState([]);
-  const [clientes, setClientes] = useState([]); // Adicionado estado para clientes
+  const [clientes, setClientes] = useState([]);
 
   // Estados dos Modais e Formulários
   const [modalAberto, setModalAberto] = useState(false);

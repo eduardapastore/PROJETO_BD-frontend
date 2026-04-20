@@ -27,7 +27,7 @@ const Serviços = () => {
   };
 
   return (
-    <main className='w-screen flex h-screen overflow-x-hidden bg-amber-50'>
+    <main className='w-screen flex h-screen overflow-x-hidden bg-transparent'>
       <Navbar />
       <Toaster />
 
