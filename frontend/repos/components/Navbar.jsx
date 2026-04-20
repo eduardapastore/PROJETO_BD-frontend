@@ -9,11 +9,10 @@ const Navbar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    // h-screen: altura toda | flex-col: itens um abaixo do outro | sticky: fica presa no topo
     <nav className='w-1/4 h-screen sticky top-0 p-6 border-r border-slate-400 bg-transparent flex flex-col'>
       
       {/* Perfil do Usuário */}
-      <div id='perfildeusuário' className='flex gap-4 items-center mb-2'>
+      <div id='perfildeusuário' className='flex gap-4 items-center'>
         <img 
           src='repos/src/imgs/pfp.png' 
           className='w-12 h-12 rounded-full object-cover' 
@@ -29,7 +28,6 @@ const Navbar = () => {
       </div>
 
       {/* Navegação do Sistema */}
-      {/* flex-1 faz este bloco ocupar todo o espaço central, empurrando o suporte para baixo */}
       <div className='flex flex-col gap-5 flex-1 mt-6'>
         
         <Link to='/dashboard' className='mb-2'>
@@ -65,6 +63,15 @@ const Navbar = () => {
           }`}>
             <i class="bi bi-star-fill"></i>
             <p>Clientes</p>
+          </button>
+        </Link>
+
+        <Link to='/servicos' className='mb-2'>
+          <button className={`flex items-center gap-6 w-full transition-colors duration-100 text-xl ${
+            isActive('/servicos') ? 'text-black font-bold' : 'text-gray-500 hover:text-black'
+          }`}>
+            <i class="bi bi-person-workspace"></i>
+            <p>Serviços</p>
           </button>
         </Link>
 
