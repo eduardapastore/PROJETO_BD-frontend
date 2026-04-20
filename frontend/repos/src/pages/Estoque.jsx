@@ -14,9 +14,10 @@ const Estoque = () => {
 
   // --- ESTADOS DE CONTROLE (MODAIS) ---
   const [modalOpen, setModalOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const [isModalEstoque, setisModalEstoque] = useState(false);
+  const [isModalFornecedor, setisModalFornecedor] = useState(false);
   const [isModalProduto, setIsModalProduto] = useState(false);
+  const [isModalExclusao, setIsModalExclusao] = useState(false);
   const [itemEditando, setItemEditando] = useState(null);
 
   // --- ESTADOS DE FORMULÁRIO ---
@@ -30,7 +31,7 @@ const Estoque = () => {
   const [fornecedor_id, setFornecedorId] = useState('');
   const [margem, setMargem] = useState(50);
 
-  // Estados do Fornecedor (Adicionados os que faltavam)
+  // Estados do Fornecedor
   const [nome_razao, setnomeRazao] = useState('');
   const [documento, setDocumento] = useState('');
   const [email, setEmail] = useState('');
@@ -56,12 +57,12 @@ const Estoque = () => {
     axios.get('http://localhost:3000/estoques/exibir').then(res => setEstoques(res.data)).catch(() => toast.error("Erro no estoque"));
   };
 
-  useEffect(() => { carregarDados(); }, []);
+  useEffect(() => { carregarDummydata(); }, []);
 
   // --- FUNÇÕES DE SALVAMENTO ---
   const salvarEstoque = () => {
     axios.post('http://localhost:3000/estoques', { produto_id, quantidade, local })
-      .then(() => { toast.success("Lançamento concluído!"); setIsModalOpen(false); carregarDados(); })
+      .then(() => { toast.success("Lançamento concluído!"); setisModalEstoque(false); carregarDados(); })
       .catch(() => toast.error('Erro ao salvar estoque'));
   };
 
@@ -76,7 +77,7 @@ const Estoque = () => {
     axios.post('http://localhost:3000/fornecedores', { nome_razao, documento, email, telefone, endereco: enderecoCompleto })
       .then(() => { 
         toast.success("Fornecedor cadastrado!"); 
-        setIsModalOpen2(false); 
+        setisModalFornecedor(false); 
         limparCamposFornecedor();
         carregarDados(); 
       })
@@ -88,6 +89,7 @@ const Estoque = () => {
     setCidade(''); setEstado(''); setBairro(''); setRua(''); setNumero('');
   };
 
+  // --- EDIÇÃO ---
   const abrirModalEdicao = (item) => {
     setItemEditando(item);
     setEditNome(item.nome);
@@ -119,6 +121,7 @@ const Estoque = () => {
     setResultadoFiltro(listaFormatada.filter((item) => item.nome.toLowerCase().includes(termo)));
   };
 
+  // EXIBIÇÃO
   const listaParaExibir = resultadoFiltro.length > 0 || search.trim() !== "" ? resultadoFiltro : listaFormatada;
   const metade = Math.ceil(listaParaExibir.length / 2);
   const lista1 = listaParaExibir.slice(0, metade);
@@ -146,7 +149,7 @@ const Estoque = () => {
   const carregarDummydata = async () => {
     try {
       const resProdutos = await axios.get('http://localhost:3000/produtos');
-      setProdutos(resProdutos.data); // CORRIGIDO: Agora usa resProdutos.data em vez de carregarDados
+      setProdutos(resProdutos.data);
     } catch (e) { 
       setProdutos(dummyProdutos); 
     }
@@ -198,10 +201,10 @@ const Estoque = () => {
           </div>
 
           <div className="flex gap-3 mb-2">
-            <button onClick={() => setIsModalOpen(true)} className='flex items-center gap-2 p-2 px-4 text-xs text-white font-semibold bg-amber-600 rounded-md hover:bg-amber-700 shadow-sm'>
+            <button onClick={() => setisModalEstoque(true)} className='flex items-center gap-2 p-2 px-4 text-xs text-white font-semibold bg-amber-600 rounded-md hover:bg-amber-700 shadow-sm'>
               <i className="bi bi-plus-lg"></i> Item
             </button>
-            <button onClick={() => setIsModalOpen2(true)} className='flex items-center gap-2 p-2 px-4 text-xs text-white font-semibold bg-amber-600 rounded-md hover:bg-amber-700 shadow-sm'>
+            <button onClick={() => setisModalFornecedor(true)} className='flex items-center gap-2 p-2 px-4 text-xs text-white font-semibold bg-amber-600 rounded-md hover:bg-amber-700 shadow-sm'>
               <i className="bi bi-person-plus-fill"></i> Fornecedor
             </button>
             <button onClick={() => setIsModalProduto(true)} className='flex items-center gap-2 p-2 px-4 text-xs text-white font-semibold bg-amber-600 rounded-md hover:bg-amber-700 shadow-sm'>
@@ -210,7 +213,7 @@ const Estoque = () => {
           </div>
         </div>
 
-        {/* CONTEÚDO CONDICIONAL (CORRIGIDO) */}
+        {/* CONTEÚDO CONDICIONAL */}
         <div className="pb-10">
           {aba === "itens" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -225,9 +228,9 @@ const Estoque = () => {
           )}
 
           {aba === "fornecedores" && (
-            <div className='bg-white rounded-md shadow-md border'>
+            <div className='bg-amber-50 rounded-md shadow-md border'>
               {fornecedores.map(f => (
-                <div key={f.id} className="p-4 border-b last:border-0 flex justify-between items-center hover:bg-slate-50">
+                <div key={f.id} className="p-4 border-b last:border-0 flex justify-between items-center">
                   <div>
                     <p className="font-bold text-amber-700">{f.nome_razao}</p>
                     <p className="text-xs text-gray-500">{f.documento} • {f.telefone}</p>
@@ -236,7 +239,9 @@ const Estoque = () => {
                   <div className="flex gap-4">
                     <button onClick={() => window.open(`https://wa.me/${f.telefone.replace(/\D/g,'')}`)}><i className="bi bi-whatsapp text-green-600 text-2xl"></i></button>
                     <button onClick={() => window.location.href = `mailto:${f.email}`}><i className="bi bi-envelope text-amber-800 text-2xl"></i></button>
+                    <button onClick={() => setIsModalExclusao(true)}><i className="bi bi-trash3 text-red-600 text-2xl"></i></button>
                   </div>
+                   {listaParaExibir.length === 0 && <p className="text-gray-400 italic">Nenhum fornecedor encontrado.</p>}
                 </div>
               ))}
             </div>
@@ -245,15 +250,22 @@ const Estoque = () => {
           {aba === "produtos" && (
             <div>
               {produtos.map(p => (
-                <div key={p.id} className="p-3 border-b last:border-0 flex justify-between items-center">
+                <div key={p.id} className="p-3 border-b last:border-0 flex justify-between items-center align-middle bg-amber-50 mb-2 rounded-md shadow-sm">
                   <div>
                     <p className="font-bold text-gray-800">{p.nome}</p>
                     <p className="text-xs text-gray-400">{p.descricao}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-black text-green-600">R$ {p.preco_venda}</p>
-                    <p className="text-[10px] text-gray-400 uppercase">Preço sugerido</p>
+                  <div className="text-right flex gap-8">
+                    <div>
+                      <p className="text-sm font-black text-green-600">R$ {p.preco_venda}</p>
+                      <p className="text-[10px] text-gray-400 uppercase">Preço sugerido</p>
+                    </div>
+                    <div className='flex gap-2'>
+                      <button><i class="bi bi-pencil-square text-2xl text-amber-600"></i></button>
+                      <button onClick={() => setIsModalExclusao(true)}><i class="bi bi-trash3 text-red-600 text-2xl"></i></button>
+                    </div>
                   </div>
+                   {listaParaExibir.length === 0 && <p className="text-gray-400 italic">Nenhum produto encontrado.</p>}                  
                 </div>
               ))}
             </div>
@@ -288,19 +300,19 @@ const Estoque = () => {
             </div>
             <div className="flex justify-end gap-2 mt-6">
               <button className="px-4 py-2 bg-gray-200 text-gray-700 rounded text-sm" onClick={() => setModalOpen(false)}>Cancelar</button>
-              <button className="px-4 py-2 bg-amber-600 text-white rounded text-sm font-semibold" onClick={salvarEdicao}>Salvar</button>
+              <button className="px-4 py-2 bg-green-600 text-white rounded text-sm font-semibold" onClick={salvarEdicao}>Salvar</button>
             </div>
           </div>
         </div>
       )}
 
       {/* 2. NOVO ITEM NO ESTOQUE */}
-      {isModalOpen && (
+      {isModalEstoque && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg w-96 shadow-xl">
             <div className='flex justify-between mb-4 border-b pb-2'>
               <h2 className='font-bold text-gray-800'>Lançar no Estoque</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-red-500"><i className="bi bi-x-lg"></i></button>
+              <button onClick={() => setisModalEstoque(false)} className="text-gray-400 hover:text-red-500"><i className="bi bi-x-lg"></i></button>
             </div>
             <div className="flex flex-col gap-3">
               <label className='text-[10px] font-bold text-gray-600 uppercase'>Produto</label>
@@ -320,14 +332,16 @@ const Estoque = () => {
         </div>
       )}
 
-      {/* 3. NOVO FORNECEDOR (COM CAMPOS CORRIGIDOS) */}
-      {isModalOpen2 && (
+      {/* 3. NOVO FORNECEDOR */}
+      {isModalFornecedor && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
           <div className="bg-white rounded-lg w-full max-w-md shadow-xl flex flex-col max-h-[90vh]">
+            {/* HEADER DE TÍTULO */}
             <div className='flex justify-between items-center p-6 border-b'>
               <h2 className='font-bold text-gray-800 text-lg'>Novo Fornecedor</h2>
-              <button onClick={() => setIsModalOpen2(false)} className="text-gray-400 hover:text-red-500"><i className="bi bi-x-lg"></i></button>
+              <button onClick={() => setisModalFornecedor(false)} className="text-gray-400 hover:text-red-500"><i className="bi bi-x-lg"></i></button>
             </div>
+            {/* CONTEÚDO */}
             <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
               <div>
                 <label className='text-[10px] font-bold text-gray-500 uppercase'>Razão Social</label>
@@ -366,6 +380,7 @@ const Estoque = () => {
                 </div>
               </div>
             </div>
+            {/* SALVAR */}
             <div className="p-6 bg-gray-50 border-t">
               <button onClick={salvarFornecedor} className="w-full bg-green-600 text-white py-2 rounded-md font-bold hover:bg-green-700 transition-all shadow-md">
                 Cadastrar Fornecedor
@@ -399,18 +414,18 @@ const Estoque = () => {
                   {fornecedores.map(f => <option key={f.id} value={f.id}>{f.nome_razao}</option>)}
                 </select>
               </div>
-              <div className="bg-amber-50 p-4 rounded-md border border-amber-100">
+              <div className="bg-amber-50 p-4 rounded-md border border-amber-700 shadow-lg">
                  <p className="text-[10px] font-bold text-amber-600 uppercase mb-2">Precificação Automática</p>
                  <div className="flex gap-2">
                     <div className="w-1/2">
-                      <label className="text-[10px] text-gray-500 uppercase">Custo R$</label>
+                      <label className="text-[10px] text-gray-500 uppercase font-bold">Custo R$</label>
                       <input type="number" value={preco_custo} onChange={e => {
                         setPrecoCusto(e.target.value);
                         setPrecoVenda((parseFloat(e.target.value) * (1 + margem/100)).toFixed(2));
                       }} className="w-full border p-2 rounded text-sm" />
                     </div>
                     <div className="w-1/2">
-                      <label className="text-[10px] text-gray-500 uppercase">Margem %</label>
+                      <label className="text-[10px] text-gray-500 uppercase font-bold">Margem %</label>
                       <input type="number" value={margem} onChange={e => {
                         setMargem(e.target.value);
                         setPrecoVenda((parseFloat(preco_custo) * (1 + e.target.value/100)).toFixed(2));
@@ -425,6 +440,20 @@ const Estoque = () => {
             </div>
             <div className="p-6 border-t">
               <button onClick={salvarProduto} className="w-full bg-green-600 text-white py-2 rounded-md font-bold hover:bg-green-700 shadow-md">Salvar Produto</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5. MODAL DE EXCLUSÃO */}
+      {isModalExclusao && (
+        <div className="fixed inset-0 text-center bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h3 className="text-2xl font-bold text-gray-800 mb-1">Confirmar Exclusão</h3>
+            <p className="text-gray-600 mb-4">Tem certeza que deseja excluir? Ao excluir não será possível desfazer a operação.</p>
+            <div className="flex gap-2 justify-center">
+              <button onClick={() => setIsModalExclusao(false)} className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600">Cancelar</button>
+              <button className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600">Excluir</button>
             </div>
           </div>
         </div>

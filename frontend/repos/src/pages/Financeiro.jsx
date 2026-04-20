@@ -9,6 +9,12 @@ import {
   Tooltip as RechartsTooltip,
   CartesianGrid,
 } from "recharts";
+import {
+  BarChart,
+  Bar,
+  ResponsiveContainer,
+  Cell
+} from "recharts";
 import Tooltip from '../../components/Tooltip';
 import axios from "axios";
 
@@ -204,11 +210,10 @@ const Financeiro = () => {
       <Navbar />
       <Toaster position="top-center" />
       <section className='p-6 w-screen h-full'>
-
         <section >
           {/* titulo + botões */}
           <div className='flex justify-between'>
-            <h2 className='font-bold text-2xl text-gray-800' >Financeiro</h2>
+            <h2 className='font-bold text-2xl text-gray-800'>Financeiro</h2>
             <div className='flex gap-2 text-xs'>
               <button className='p-2 rounded-md border border-gray-700 hover:bg-gray-700 hover:text-gray-50'>
                 <i className="bi bi-clipboard2-data"></i>
@@ -225,8 +230,7 @@ const Financeiro = () => {
 
            {/* SALDO DAS CONTAS */}
           <div className="mt-2 mb-4 bg-transparent rounded-lg w-full">
-            <h3 className="font-semibold mb-2 text-md">Saldo Atual</h3>
-
+            <h3 className="font-bold mb-4 text-xl text-gray-800">Saldo Atual</h3>
             {contas_financeiras.length > 0 ? (
               contas_financeiras.map((c) => (
                 <div
@@ -243,103 +247,117 @@ const Financeiro = () => {
               <p className="text-gray-600">Nenhuma conta carregada</p>
             )}
           </div>
-
-          {/* gráficos */}
-          <h3 className="font-bold mb-2 text-md">Dashboard Financeiro</h3>
-          <div className='flex justify-center gap-64'>
-            {/* RECEITAS */}
-            <div>
-              <h3 className='font-bold text-xs'>Receitas</h3>
-              <div className="bg-transparent p-2 rounded-2xl text-xs">
-                <LineChart width={250} height={150} data={graficoReceitas}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <RechartsTooltip />
-                  <Line type="monotone" dataKey="valor" stroke="#16a34a" strokeWidth={3} />
-                </LineChart>
-              </div>
-            </div>
-
-            {/* DESPESAS */}
-            <div>
-              <h3 className='font-bold text-xs'>Despesas</h3>
-              <div className="bg-transparent p-2 rounded-2xl text-xs">
-                <LineChart width={250} height={150} data={graficoDespesas}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <RechartsTooltip />
-                  <Line type="monotone" dataKey="valor" stroke="#dc2626" strokeWidth={3} />
-                </LineChart>
-              </div>
-            </div>
-          </div>
-
         </section>
 
-        {/* lista de entradas e saídas */}
-        <section >
-          <div className='flex gap-2 items-baseline'>
-            <h3 className='font-bold text-lg mb-3'>Últimos Lançamentos</h3>
-            <Tooltip text="Essa lista contém apenas os últimos 10 lançamentos">
-              <i className="bi bi-question-circle text-gray-600"></i>
-            </Tooltip>
-          </div>
-
-          <div className='flex flex-col gap-3 max-h-[35vh] overflow-y-auto pr-2'>
-            {lancamento.length > 0 ? (
-              lancamento.map((item, index) => {
-
-                // Definir cor conforme tipo
-                const badgeColor =
-                  item.tipo_lancamento_id === 1
-                    ? "bg-green-200 text-green-700"
-                    : item.tipo_lancamento_id === 2
-                      ? "bg-red-200 text-red-700"
-                      : "bg-amber-200 text-amber-700"; // DESPESAS FIXAS
-
-                // Definir cor do valor
-                const valorColor =
-                  item.tipo_lancamento_id === 1
-                    ? "text-green-500"
-                    : item.tipo_lancamento_id === 2
-                      ? "text-red-500"
-                      : "text-amber-500"; // DESPESAS FIXAS
-
-                // Sinal antes do valor
-                const sinal =
-                  item.tipo_lancamento_id === 1 ? "+" : "-";
-
-                return (
-                  <div
-                    key={index}
-                    className="p-3 bg-transparent border border-gray-600 rounded-md flex justify-between items-center text-gray-900"
-                  >
-                    {/* ESQUERDA */}
-                    <div>
-                      <p className="text-sm font-semibold">{item.descricao}</p>
-                      <p className="text-xs text-gray-500">{item.data_lancamento}</p>
-
-                      <span
-                        className={`text-xs px-2 py-1 rounded-md mt-1 inline-block ${badgeColor}`}
-                      >
-                        {tipo_lancamento.find(t => t.id === item.tipo_lancamento_id)?.desc || "Desconhecido"}
-                      </span>
-                    </div>
-
-                    {/* DIREITA */}
-                    <p className={`text-md font-bold ${valorColor}`}>
-                      {sinal} R$ {item.valor}
-                    </p>
+{/* GRÁFICO + LANÇAMENTOS */}
+        <section className='flex-1 overflow-y-auto'>
+            {/* GRÁFICOS */}
+              <h3 className="font-bold mb-4 text-xl text-gray-800">Dashboard</h3>
+              <div className='flex flex-col lg:flex-row gap-4 mb-8'>
+                {/* RECEITA */}
+                <div className="flex-1 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                  <div className='flex items-center gap-2 mb-4'>
+                    <div className='w-2 h-2 rounded-full bg-green-500'></div>
+                    <h4 className='font-bold text-sm text-gray-600'>Receitas (Últimos Meses)</h4>
                   </div>
-                );
-              })
-            ) : (
-              <p className="text-gray-600">Nenhum lançamento encontrado</p>
-            )}
+                  <div className="h-[150px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={graficoReceitas}>
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10}} />
+                        <RechartsTooltip cursor={{fill: '#f0fdf4'}} contentStyle={{borderRadius: '8px', border: 'none'}} />
+                        <Bar dataKey="valor" fill="#16a34a" radius={[4, 4, 0, 0]} barSize={30} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
 
-          </div>
+              {/* DESPESAS */}
+              <div className="flex-1 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                <div className='flex items-center gap-2 mb-4'>
+                  <div className='w-2 h-2 rounded-full bg-red-500'></div>
+                  <h4 className='font-bold text-sm text-gray-600'>Despesas (Últimos Meses)</h4>
+                </div>
+                <div className="h-[150px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={graficoDespesas}>
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10}} />
+                      <RechartsTooltip cursor={{fill: '#fef2f2'}} contentStyle={{borderRadius: '8px', border: 'none'}} />
+                      <Bar dataKey="valor" fill="#dc2626" radius={[4, 4, 0, 0]} barSize={30} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+
+          {/* LISTA DE LANÇAMENTOS */}
+          <section >
+            <div className='flex gap-2 justify-between items-baseline'>
+              <h3 className="font-bold mb-4 text-xl text-gray-800">Lançamentos</h3>
+                <div className="flex gap-2 items-center">
+                <input 
+                  type="text" placeholder=" Pesquisar..." 
+                  className="w-64 border border-gray-400 p-2 text-gray-700 rounded-md text-sm outline-none shadow-lg focus:border-amber-600"
+                />
+                <button className="p-1 w-8 h-8 items-center font-bold bg-amber-600 rounded-md text-white hover:bg-amber-700 transition-all">
+                  <i className="bi bi-search"></i>
+                </button>
+              </div>
+            </div>
+
+            <div className='flex flex-col gap-3 max-h-[35vh] overflow-y-auto pr-2'>
+              {lancamento.length > 0 ? (
+                lancamento.map((item, index) => {
+
+                  // Definir cor conforme tipo
+                  const badgeColor =
+                    item.tipo_lancamento_id === 1
+                      ? "bg-green-200 text-green-700"
+                      : item.tipo_lancamento_id === 2
+                        ? "bg-red-200 text-red-700"
+                        : "bg-amber-200 text-amber-700"; // DESPESAS FIXAS
+
+                  // Definir cor do valor
+                  const valorColor =
+                    item.tipo_lancamento_id === 1
+                      ? "text-green-500"
+                      : item.tipo_lancamento_id === 2
+                        ? "text-red-500"
+                        : "text-amber-500"; // DESPESAS FIXAS
+
+                  // Sinal antes do valor
+                  const sinal =
+                    item.tipo_lancamento_id === 1 ? "+" : "-";
+
+                  return (
+                    <div
+                      key={index}
+                      className="p-3 bg-transparent border border-gray-600 rounded-md flex justify-between items-center text-gray-900"
+                    >
+                      {/* ESQUERDA */}
+                      <div>
+                        <p className="text-sm font-semibold">{item.descricao}</p>
+                        <p className="text-xs text-gray-500">{item.data_lancamento}</p>
+
+                        <span
+                          className={`text-xs px-2 py-1 rounded-md mt-1 inline-block ${badgeColor}`}
+                        >
+                          {tipo_lancamento.find(t => t.id === item.tipo_lancamento_id)?.desc || "Desconhecido"}
+                        </span>
+                      </div>
+
+                      {/* DIREITA */}
+                      <p className={`text-md font-bold ${valorColor}`}>
+                        {sinal} R$ {item.valor}
+                      </p>
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="text-gray-600">Nenhum lançamento encontrado</p>
+              )}
+
+            </div>
+          </section>
         </section>
       </section>
 
@@ -435,9 +453,7 @@ const Financeiro = () => {
                   )
                   )
                 }
-
               </select>
-
               <label className='block text-xs font-bold text-gray-600 mb-1'>CONTA DE ENTRADA</label>
               <select
                 name='conta_financeira_id'
@@ -462,7 +478,7 @@ const Financeiro = () => {
             <button
               onClick={salvarLancamentos}
               type="submit"
-              className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-amber-700"
+              className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700"
             >
               Salvar
             </button>

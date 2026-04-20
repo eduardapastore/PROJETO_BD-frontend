@@ -11,6 +11,7 @@ import Suporte from './pages/Suporte'
 import Confirmacoes from './pages/Confirmacoes'
 import AddColaborador from './pages/AddColaborador';
 import Clientes from './pages/Clientes';
+import Serviços from './pages/Serviços';
 
 const Router = () => {
   return (
@@ -29,6 +30,7 @@ const Router = () => {
                 <Route path='/suporte' element={<Suporte />}/>
                 <Route path='/addcolaborador' element={<AddColaborador />} />
                 <Route path='/clientes' element={<Clientes />} />
+                <Route path='/servicos' element={<Serviços />} />
                 <Route path='*' element={<h1>404 - Página Não Encontrada</h1>} />
                 {/* Adiciona do mesmo jeito aqui outras páginas */}
             </Routes>
