@@ -289,7 +289,7 @@ const Financeiro = () => {
               </div>
             </div>
 
-          {/* LISTADE LANÇAMENTOS */}
+          {/* LISTA DE LANÇAMENTOS */}
           <section >
             <div className='flex gap-2 justify-between items-baseline'>
               <h3 className="font-bold mb-4 text-xl text-gray-800">Lançamentos</h3>
@@ -453,9 +453,7 @@ const Financeiro = () => {
                   )
                   )
                 }
-
               </select>
-
               <label className='block text-xs font-bold text-gray-600 mb-1'>CONTA DE ENTRADA</label>
               <select
                 name='conta_financeira_id'

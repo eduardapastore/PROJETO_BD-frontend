@@ -261,7 +261,7 @@ const Colaboradores = () => {
               <div
                 key={colaborador.id}
                 onClick={() => abrirModal(colaborador)}
-                className={`border rounded-md p-4 bg-amber-50 border-amber-300 shadow-md cursor-pointer hover:border-amber-500 hover:text-amber-800  ${
+                className={`border rounded-md p-4 bg-amber-50 shadow-md cursor-pointer hover:border-amber-500 hover:text-amber-800  ${
                   viewMode === "LIST" ? "flex items-center gap-4" : ""
                 }`}
               >
