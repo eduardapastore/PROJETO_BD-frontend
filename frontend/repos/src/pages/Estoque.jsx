@@ -300,7 +300,7 @@ const Estoque = () => {
             </div>
             <div className="flex justify-end gap-2 mt-6">
               <button className="px-4 py-2 bg-gray-200 text-gray-700 rounded text-sm" onClick={() => setModalOpen(false)}>Cancelar</button>
-              <button className="px-4 py-2 bg-amber-600 text-white rounded text-sm font-semibold" onClick={salvarEdicao}>Salvar</button>
+              <button className="px-4 py-2 bg-green-600 text-white rounded text-sm font-semibold" onClick={salvarEdicao}>Salvar</button>
             </div>
           </div>
         </div>
