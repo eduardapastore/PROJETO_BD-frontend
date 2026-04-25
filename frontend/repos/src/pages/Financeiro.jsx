@@ -2,114 +2,99 @@ import { useState, useEffect } from 'react';
 import Navbar from '../../components/Navbar';
 import { Toaster, toast } from 'react-hot-toast';
 import {
-  LineChart,
-  Line,
   XAxis,
-  YAxis,
   Tooltip as RechartsTooltip,
-  CartesianGrid,
-} from "recharts";
-import {
+  ResponsiveContainer,
   BarChart,
   Bar,
-  ResponsiveContainer,
-  Cell
 } from "recharts";
-import Tooltip from '../../components/Tooltip';
 import axios from "axios";
 
-
 const Financeiro = () => {
+  const now = new Date();
   const getMonthName = (date) =>
     date.toLocaleString("pt-BR", { month: "short" }).toUpperCase();
-
-  const now = new Date();
 
   const month0 = new Date(now.getFullYear(), now.getMonth() - 2, 1);
   const month1 = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const month2 = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const data = [
-    {
-      name: getMonthName(month0),
-      valor: Math.floor(Math.random() * 100),
-    },
-    {
-      name: getMonthName(month1),
-      valor: Math.floor(Math.random() * 100),
-    },
-    {
-      name: getMonthName(month2),
-      valor: Math.floor(Math.random() * 100),
-    },
-  ];
-
-  const [lancamentos] = useState([
-    {
-      meio_pagamento_id: "PIX",
-      descricao: "COMPRA SHAMPOO",
-      data_lancamento: "20/11/2025",
-      valor: "350,00",
-      tipo_lancamento_id: "DESPESA"
-    }
+  // --- DUMMY DATA (ESTADOS INICIAIS) ---
+  const [meio_pagamento, setMeioPagamento] = useState([
+    { id: 1, tipo: "PIX" },
+    { id: 2, tipo: "Cartão de Crédito" },
+    { id: 3, tipo: "Dinheiro" }
   ]);
 
+  const [contas_financeiras, setContasFinanceiras] = useState([
+    { id: 1, nome: "Caixa Barba & Arte", saldo_atual: 1550.50 },
+    { id: 2, nome: "Conta PJ - Nubank", saldo_atual: 4200.00 }
+  ]);
+
+  const [tipo_lancamento, setTipoLancamento] = useState([
+    { id: 1, desc: "RECEITA" },
+    { id: 2, desc: "DESPESA" },
+    { id: 3, desc: "DESPESA FIXA" }
+  ]);
+
+  const [lancamento, setLancamento] = useState([
+    { id: 1, descricao: "Corte + Barba (Cliente VIP)", valor: 85.00, tipo_lancamento_id: 1, data_lancamento: "25/04/2026" },
+    { id: 2, descricao: "Pomada Efeito Matte", valor: 45.00, tipo_lancamento_id: 1, data_lancamento: "24/04/2026" },
+    { id: 3, descricao: "Aluguel Salão", valor: 1200.00, tipo_lancamento_id: 3, data_lancamento: "05/04/2026" },
+    { id: 4, descricao: "Conta de Luz", valor: 280.00, tipo_lancamento_id: 2, data_lancamento: "10/04/2026" },
+    { id: 5, descricao: "Reposição de Shampoos", valor: 350.00, tipo_lancamento_id: 2, data_lancamento: "15/04/2026" },
+  ]);
+
+  // Estados do Formulário
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [valor, setValor] = useState('');
   const [descricao, setDescricao] = useState('');
-
   const [meio_pagamento_id, setMeioPagamentoId] = useState('');
-  const [meio_pagamento, setMeioPagamento] = useState([]);
-
   const [conta_financeira_id, setContaFinanceiraId] = useState('');
-  const [contas_financeiras, setContasFinanceiras] = useState([]);
-
   const [tipo_lancamento_id, setTipoLancamentoId] = useState('');
-  const [tipo_lancamento, setTipoLancamento] = useState([]);
 
-  const [lancamento, setLancamento] = useState([]);
+  // --- EFEITOS (Tenta buscar do back, se falhar mantém os dummies) ---
   useEffect(() => {
-
-    //meios_pagamento
-    axios.get('http://localhost:3000/meios_pagamento')
-      .then((response) => {
-        setMeioPagamento(response.data);
-      })
-      .catch((error) => {
-        console.error("Erro ao buscar formas de pagamento:", error);
-        toast.error("Erro ao carregar formas de pagamento!");
-      });
-
-    //Contas_financeiras
-    axios.get('http://localhost:3000/contas_financeiras')
-      .then((response) => {
-        setContasFinanceiras(response.data);
-      })
-      .catch((error) => {
-        console.error("Erro ao buscar contas:", error);
-        toast.error("Erro ao carregar contas!");
-      });
-
-    //tipo_lancamentos
-    axios.get('http://localhost:3000/tipo_lancamento')
-      .then((response) => {
-        setTipoLancamento(response.data);
-      })
-      .catch((error) => {
-        console.error("Erro ao buscar tipo de lancamentos:", error);
-        toast.error("Erro ao carregar tipo delancamentos!");
-      });
-
-    //lancamentos_financeiros
-    axios.get('http://localhost:3000/lancamentos')
-      .then((response) => {
-        setLancamento(response.data);
-      })
-      .catch((error) => {
-        console.error("Erro ao buscar lancamentos:", error);
-        toast.error("Erro ao carregar lancamentos!");
-      });
-
+    const fetchData = async () => {
+      try {
+        const [resMeios, resContas, resTipos, resLanc] = await Promise.all([
+          axios.get('http://localhost:3000/meios_pagamento'),
+          axios.get('http://localhost:3000/contas_financeiras'),
+          axios.get('http://localhost:3000/tipo_lancamento'),
+          axios.get('http://localhost:3000/lancamentos')
+        ]);
+        setMeioPagamento(resMeios.data);
+        setContasFinanceiras(resContas.data);
+        setTipoLancamento(resTipos.data);
+        setLancamento(resLanc.data);
+      } catch (error) {
+        console.warn("Backend offline, usando dados fictícios para demonstração.");
+      }
+    };
+    fetchData();
   }, []);
+
+  const salvarLancamentos = () => {
+    if(!descricao || !valor || !tipo_lancamento_id) {
+        return toast.error("Preencha os campos obrigatórios!");
+    }
+
+    const novoLancamento = {
+      id: Math.random(),
+      descricao,
+      valor: parseFloat(valor.replace(',', '.')),
+      tipo_lancamento_id: parseInt(tipo_lancamento_id),
+      data_lancamento: new Date().toLocaleDateString('pt-BR'),
+      meio_pagamento_id,
+      conta_financeira_id
+    };
+
+    // Simulação de salvamento local para teste imediato EU AAAAAMO
+    setLancamento([novoLancamento, ...lancamento]);
+    toast.success("Lançamento salvo com sucesso!");
+    setIsModalOpen(false);
+    limparCampos();
+  };
 
   const limparCampos = () => {
     setDescricao("");
@@ -118,375 +103,209 @@ const Financeiro = () => {
     setMeioPagamentoId("");
     setContaFinanceiraId("");
   };
-  
-  const salvarLancamentos = () => {
-    console.log({
-      conta_financeira_id,
-      valor,
-      descricao,
-      meio_pagamento_id,
-      tipo_lancamento_id
-    });
-    axios.post("http://localhost:3000/lancamentos", {
-      conta_financeira_id,
-      valor,
-      descricao,
-      meio_pagamento_id,
-      tipo_lancamento_id
-    })
-      .then(() => {
-        toast.success("Lançamento salvo!");
-  
-        //busca novamente os lançamentos
-        return axios.get("http://localhost:3000/lancamentos");
-      })
-      .then((response) => {
-        setLancamento(response.data); //atualiza a lista
-  
-        //atualiza saldos das contas
-        return axios.get("http://localhost:3000/contas_financeiras");
-      })
-      .then((responseContas) => {
-        setContasFinanceiras(responseContas.data);
-        limparCampos();
-        setIsModalOpen(false);
-      })
-      .catch(() => toast.error("Erro ao salvar lançamento"));
-  };
-  
-  
 
-  // MODAL
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // VALOR
-  const [valor_base, setSalario] = useState("");
-
-  const handleValorOnChange = (e) => {
-    const valorDigitado = e.target.value;
-
-    // Extrai somente números
-    const somenteNumeros = valorDigitado.replace(/\D/g, "");
-
-    // Atualiza o estado com o valor formatado
-    setSalario(formatarParaReal(somenteNumeros));
-  };
-
-
-  const formatarParaReal = (valor) => {
-    if (!valor) return "";
-    const numero = Number(valor.replace(/\D/g, "")) / 100;
-    return numero.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
-    });
-  };
-
-  // Agrupar receitas (ID = 1) e despesas (ID = 2 ou 3)
-  const receitas = lancamento
+  // --- CÁLCULOS DO DASHBOARD ---
+  const receitasTotais = lancamento
     .filter(l => l.tipo_lancamento_id === 1)
     .reduce((acc, l) => acc + Number(l.valor), 0);
 
-  const despesas = lancamento
+  const despesasTotais = lancamento
     .filter(l => l.tipo_lancamento_id === 2 || l.tipo_lancamento_id === 3)
     .reduce((acc, l) => acc + Number(l.valor), 0);
 
-  // Gráfico simulando últimos 3 meses com valores reais de receita/despesa
   const graficoReceitas = [
-    { name: getMonthName(month0), valor: receitas },
-    { name: getMonthName(month1), valor: receitas },
-    { name: getMonthName(month2), valor: receitas },
+    { name: getMonthName(month0), valor: receitasTotais * 0.7 },
+    { name: getMonthName(month1), valor: receitasTotais * 0.9 },
+    { name: getMonthName(month2), valor: receitasTotais },
   ];
 
   const graficoDespesas = [
-    { name: getMonthName(month0), valor: despesas },
-    { name: getMonthName(month1), valor: despesas },
-    { name: getMonthName(month2), valor: despesas },
+    { name: getMonthName(month0), valor: despesasTotais * 0.8 },
+    { name: getMonthName(month1), valor: despesasTotais * 1.1 },
+    { name: getMonthName(month2), valor: despesasTotais },
   ];
 
-
   return (
-    <main className='w-screen flex h-screen overflow-x-hidden'>
+    <main className='w-screen flex h-screen overflow-x-hidden bg-transparent'>
       <Navbar />
       <Toaster position="top-center" />
-      <section className='p-6 w-screen h-full'>
-        <section >
-          {/* titulo + botões */}
-          <div className='flex justify-between'>
-            <h2 className='font-bold text-2xl text-gray-800'>Financeiro</h2>
-            <div className='flex gap-2 text-xs'>
-              <button className='p-2 rounded-md border border-gray-700 hover:bg-gray-700 hover:text-gray-50'>
-                <i className="bi bi-clipboard2-data"></i>
-                Relatório
-              </button>
-              <button className='p-2 rounded-md font-semibold bg-amber-600 text-amber-50 hover:bg-amber-700'
-                onClick={() => setIsModalOpen(true)}
-              >
-                <i className="bi bi-plus"></i>
-                Adicionar Lançamento
-              </button>
+      
+      <section className='p-6 w-full h-full flex flex-col'>
+        <header className='flex justify-between items-center mb-6'>
+          <div>
+            <h2 className='font-bold text-3xl text-gray-800 tracking-tight'>Financeiro</h2>
+            <p className='text-gray-500 text-sm'>Gestão de fluxo de caixa e saldos</p>
+          </div>
+          <div className='flex gap-3 text-xs'>
+            <button className='flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-amber-50 hover:bg-gray-100 transition-all shadow-sm'>
+              <i className="bi bi-file-earmark-pdf"></i> Relatório PDF
+            </button>
+            <button 
+              className='flex items-center gap-2 px-4 py-2 rounded-lg font-bold bg-amber-600 text-white hover:bg-amber-700 transition-all shadow-md'
+              onClick={() => setIsModalOpen(true)}
+            >
+              <i className="bi bi-plus-lg"></i> Novo Lançamento
+            </button>
+          </div>
+        </header>
+
+        <div className='grid grid-cols-1 lg:grid-cols-3 gap-6 mb-4'>
+          {/* SALDO DAS CONTAS */}
+          <div className="bg-amber-50 p-5 rounded-2xl shadow-sm border border-gray-100 lg:col-span-1">
+            <h3 className="font-bold mb-4 text-gray-700 flex items-center gap-2">
+              <i className="bi bi-wallet2 text-amber-600"></i> Meus Saldos
+            </h3>
+            <div className='space-y-3'>
+              {contas_financeiras.map((c) => (
+                <div key={c.id} className="flex justify-between items-center p-3 mb-2 bg-amber-100 rounded-xl shadow-sm">
+                  <span className='text-gray-600 font-medium text-sm'>{c.nome}</span>
+                  <span className="font-bold text-amber-900 text-sm">R$ {Number(c.saldo_atual).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-           {/* SALDO DAS CONTAS */}
-          <div className="mt-2 mb-4 bg-transparent rounded-lg w-full">
-            <h3 className="font-bold mb-4 text-xl text-gray-800">Saldo Atual</h3>
-            {contas_financeiras.length > 0 ? (
-              contas_financeiras.map((c) => (
-                <div
-                  key={c.id}
-                  className="flex justify-between border-b py-1 text-sm"
-                >
-                  <span>{c.nome}</span>
-                  <span className="font-semibold">
-                    R$ {Number(c.saldo_atual).toFixed(2)}
-                  </span>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-600">Nenhuma conta carregada</p>
-            )}
+          {/* DASHBOARDS - GRÁFICOS */}
+          <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-amber-50 p-4 rounded-2xl border border-gray-100 shadow-sm">
+              <h4 className='font-bold text-xs text-green-600 mb-4 uppercase tracking-wider'>Receitas</h4>
+              <div className="h-[120px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={graficoReceitas}>
+                    <XAxis dataKey="name" hide />
+                    <RechartsTooltip cursor={{fill: '#f0fdf4'}} contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)'}} />
+                    <Bar dataKey="valor" fill="#22c55e" radius={[6, 6, 0, 0]} barSize={40} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="bg-amber-50 p-4 rounded-2xl border border-gray-100 shadow-sm">
+              <h4 className='font-bold text-xs text-red-600 mb-4 uppercase tracking-wider'>Despesas</h4>
+              <div className="h-[120px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={graficoDespesas}>
+                    <XAxis dataKey="name" hide />
+                    <RechartsTooltip cursor={{fill: '#fef2f2'}} contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)'}} />
+                    <Bar dataKey="valor" fill="#ef4444" opacity={0.9} radius={[6, 6, 0, 0]} barSize={40} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
-        </section>
+        </div>
 
-{/* GRÁFICO + LANÇAMENTOS */}
-        <section className='flex-1 overflow-y-auto'>
-            {/* GRÁFICOS */}
-              <h3 className="font-bold mb-4 text-xl text-gray-800">Dashboard</h3>
-              <div className='flex flex-col lg:flex-row gap-4 mb-8'>
-                {/* RECEITA */}
-                <div className="flex-1 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                  <div className='flex items-center gap-2 mb-4'>
-                    <div className='w-2 h-2 rounded-full bg-green-500'></div>
-                    <h4 className='font-bold text-sm text-gray-600'>Receitas (Últimos Meses)</h4>
-                  </div>
-                  <div className="h-[150px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={graficoReceitas}>
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10}} />
-                        <RechartsTooltip cursor={{fill: '#f0fdf4'}} contentStyle={{borderRadius: '8px', border: 'none'}} />
-                        <Bar dataKey="valor" fill="#16a34a" radius={[4, 4, 0, 0]} barSize={30} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-
-              {/* DESPESAS */}
-              <div className="flex-1 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                <div className='flex items-center gap-2 mb-4'>
-                  <div className='w-2 h-2 rounded-full bg-red-500'></div>
-                  <h4 className='font-bold text-sm text-gray-600'>Despesas (Últimos Meses)</h4>
-                </div>
-                <div className="h-[150px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={graficoDespesas}>
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10}} />
-                      <RechartsTooltip cursor={{fill: '#fef2f2'}} contentStyle={{borderRadius: '8px', border: 'none'}} />
-                      <Bar dataKey="valor" fill="#dc2626" radius={[4, 4, 0, 0]} barSize={30} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
+        {/* LISTA DE LANÇAMENTOS */}
+        <section className='bg-amber-50 p-6 rounded-2xl shadow-sm border border-gray-100 flex-1 flex flex-col max-h-[300px]'>
+          <div className='flex justify-between items-center mb-6'>
+            <h3 className="font-bold text-xl text-gray-800">Histórico Recente</h3>
+            <div className="relative">
+              <i className="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+              <input 
+                type="text" placeholder="Filtrar lançamentos..." 
+                className="pl-10 pr-4 py-2 bg-gray-50 border-none rounded-xl text-sm w-64 focus:ring-2 focus:ring-amber-500 outline-none transition-all"
+              />
             </div>
+          </div>
 
-          {/* LISTA DE LANÇAMENTOS */}
-          <section >
-            <div className='flex gap-2 justify-between items-baseline'>
-              <h3 className="font-bold mb-4 text-xl text-gray-800">Lançamentos</h3>
-                <div className="flex gap-2 items-center">
-                <input 
-                  type="text" placeholder=" Pesquisar..." 
-                  className="w-64 border border-gray-400 p-2 text-gray-700 rounded-md text-sm outline-none shadow-lg focus:border-amber-600"
-                />
-                <button className="p-1 w-8 h-8 items-center font-bold bg-amber-600 rounded-md text-white hover:bg-amber-700 transition-all">
-                  <i className="bi bi-search"></i>
-                </button>
-              </div>
-            </div>
-
-            <div className='flex flex-col gap-3 max-h-[35vh] overflow-y-auto pr-2'>
-              {lancamento.length > 0 ? (
-                lancamento.map((item, index) => {
-
-                  // Definir cor conforme tipo
-                  const badgeColor =
-                    item.tipo_lancamento_id === 1
-                      ? "bg-green-200 text-green-700"
-                      : item.tipo_lancamento_id === 2
-                        ? "bg-red-200 text-red-700"
-                        : "bg-amber-200 text-amber-700"; // DESPESAS FIXAS
-
-                  // Definir cor do valor
-                  const valorColor =
-                    item.tipo_lancamento_id === 1
-                      ? "text-green-500"
-                      : item.tipo_lancamento_id === 2
-                        ? "text-red-500"
-                        : "text-amber-500"; // DESPESAS FIXAS
-
-                  // Sinal antes do valor
-                  const sinal =
-                    item.tipo_lancamento_id === 1 ? "+" : "-";
-
-                  return (
-                    <div
-                      key={index}
-                      className="p-3 bg-transparent border border-gray-600 rounded-md flex justify-between items-center text-gray-900"
-                    >
-                      {/* ESQUERDA */}
-                      <div>
-                        <p className="text-sm font-semibold">{item.descricao}</p>
-                        <p className="text-xs text-gray-500">{item.data_lancamento}</p>
-
-                        <span
-                          className={`text-xs px-2 py-1 rounded-md mt-1 inline-block ${badgeColor}`}
-                        >
-                          {tipo_lancamento.find(t => t.id === item.tipo_lancamento_id)?.desc || "Desconhecido"}
-                        </span>
-                      </div>
-
-                      {/* DIREITA */}
-                      <p className={`text-md font-bold ${valorColor}`}>
-                        {sinal} R$ {item.valor}
-                      </p>
+          <div className='flex-1 overflow-y-auto pr-2 space-y-3'>
+            {lancamento.map((item, index) => {
+              const isReceita = item.tipo_lancamento_id === 1;
+              return (
+                <div key={index} className="group p-4 bg-amber-50 border border-gray-100 rounded-xl flex justify-between items-center hover:border-amber-200 hover:shadow-md transition-all">
+                  <div className='flex items-center gap-4'>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isReceita ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                      <i className={`bi ${isReceita ? 'bi-arrow-up-short' : 'bi-arrow-down-short'} text-2xl`}></i>
                     </div>
-                  );
-                })
-              ) : (
-                <p className="text-gray-600">Nenhum lançamento encontrado</p>
-              )}
-
-            </div>
-          </section>
+                    <div>
+                      <p className="text-sm font-bold text-gray-800 uppercase">{item.descricao}</p>
+                      <p className="text-xs text-gray-400 font-medium">{item.data_lancamento} • {tipo_lancamento.find(t => t.id === item.tipo_lancamento_id)?.desc}</p>
+                    </div>
+                  </div>
+                  <div className='text-right'>
+                    <p className={`text-sm font-black ${isReceita ? 'text-green-600' : 'text-red-600'}`}>
+                      {isReceita ? '+' : '-'} R$ {Number(item.valor).toFixed(2)}
+                    </p>
+                    <button className='opacity-0 group-hover:opacity-100 text-[10px] text-gray-400 underline transition-opacity'>Ver detalhes</button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </section>
       </section>
 
-      {/* MODAL */}
-      {/* OBS o modal precisa salvar a data pra a formatação ficar igual a das listas */}
+      {/* MODAL DE LANÇAMENTO */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-20">
-          <div className="bg-white p-6 rounded-lg w-96 shadow-lg relative">
-            <div className='flex justify-between mb-2'>
-              <h2 className='font-bold'>Adicionar Lançamento</h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-gray-600 hover:text-gray-800"
-              >
-                <i className="bi bi-x-lg"></i>
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+          <div className="bg-amber-50 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className='p-6 border-b border-gray-100 flex justify-between items-center bg-amber-50/50'>
+              <h2 className='font-black text-gray-800 uppercase tracking-tighter'>Novo Lançamento</h2>
+              <button onClick={() => setIsModalOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-amber-50 transition-colors">
+                <i className="bi bi-x-lg text-gray-500"></i>
               </button>
             </div>
 
-            {/* input de título do lançamento */}
-            <label className='block text-xs font-bold text-gray-600 mb-1'>TÍTULO DO LANÇAMENTO</label>
-            <input
-              //DESCRICAO
-              type="text"
-              placeholder="Título do Lançamento"
-              value={descricao}
-              // onChange={e => setDescricao(e.target.value)}
-              className="w-full mb-2 border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:border-amber-600"
-            />
-
-            <label className='block text-xs font-bold text-gray-600 mb-1'>DESCRIÇÃO DO LANÇAMENTO</label>
-            <input
-              //DESCRICAO
-              type="text"
-              placeholder="Descrição do Lançamento"
-              value={descricao}
-              onChange={e => setDescricao(e.target.value)}
-              className="w-full mb-2 border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:border-amber-600"
-            />
-
-            <div className='flex gap-2 w-full mb-2'>
+            <div className='p-6 space-y-4'>
               <div>
-                <label className='block text-xs font-bold text-gray-600 mb-1'>VALOR</label>
+                <label className='block text-[10px] font-black text-gray-400 mb-1 uppercase'>Descrição do Gasto/Ganho</label>
                 <input
-                  //VALOR
                   type="text"
-                  placeholder="Valor"
-                  value={valor}
-                  onChange={e => setValor(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:border-amber-600"
+                  placeholder="Ex: Pagamento Fornecedor"
+                  value={descricao}
+                  onChange={e => setDescricao(e.target.value)}
+                  className="w-full bg-gray-50 border-2 border-transparent focus:border-amber-500 focus:bg-amber-50 rounded-xl p-3 text-sm outline-none transition-all"
                 />
               </div>
 
-              <div>
-              <label className='block text-xs font-bold text-gray-600 mb-1'>TIPO</label>
-              <select
-                name='tipo_lancamento_id'
-                value={tipo_lancamento_id}
-                onChange={e => setTipoLancamentoId(e.target.value)}
-                className="w-full border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:border-amber-600"
-                required
-              >
-                <option value="">Selecione a categoria</option>
-                {
-                  tipo_lancamento.map((t) =>
-                  (
-                    <option key={t.id} value={t.id}>
-                      {t.desc}
-                    </option>
-                  )
-                  )
-                }
-
-              </select>
+              <div className='grid grid-cols-2 gap-4'>
+                <div>
+                  <label className='block text-[10px] font-black text-gray-400 mb-1 uppercase'>Valor (R$)</label>
+                  <input
+                    type="text"
+                    placeholder="0,00"
+                    value={valor}
+                    onChange={e => setValor(e.target.value)}
+                    className="w-full bg-gray-50 border-2 border-transparent focus:border-amber-500 focus:bg-amber-50 rounded-xl p-3 text-sm font-bold outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className='block text-[10px] font-black text-gray-400 mb-1 uppercase'>Categoria</label>
+                  <select
+                    value={tipo_lancamento_id}
+                    onChange={e => setTipoLancamentoId(e.target.value)}
+                    className="w-full bg-gray-50 border-2 border-transparent focus:border-amber-500 focus:bg-amber-50 rounded-xl p-3 text-sm outline-none transition-all"
+                  >
+                    <option value="">Selecione</option>
+                    {tipo_lancamento.map((t) => <option key={t.id} value={t.id}>{t.desc}</option>)}
+                  </select>
+                </div>
               </div>
 
-            </div>
-            <div>
-              <label className='block text-xs font-bold text-gray-600 mb-1'>TIPO DE PAGAMENTO</label>
-              <select
-                name='meio_pagamento_id'
-                value={meio_pagamento_id}
-                onChange={e => setMeioPagamentoId(e.target.value)}
-                className="border w-full border-gray-400 rounded-md mb-2 p-2 text-xs focus:outline-none focus:border-amber-600"
-                required
-              >
-                <option value="">Selecione um tipo de pagamento</option>
-                {
-                  meio_pagamento.map((p) =>
-                  (
-                    <option key={p.id} value={p.id}>
-                      {p.tipo}
-                    </option>
-                  )
-                  )
-                }
-              </select>
-              <label className='block text-xs font-bold text-gray-600 mb-1'>CONTA DE ENTRADA</label>
-              <select
-                name='conta_financeira_id'
-                value={conta_financeira_id}
-                onChange={e => setContaFinanceiraId(e.target.value)}
-                className="border w-full border-gray-400 rounded-md mb-2 p-2 text-xs focus:outline-none focus:border-amber-600"
-                required
-              >
-                <option value="">Selecione uma conta</option>
-                {
-                  contas_financeiras.map((c) =>
-                  (
-                    <option key={c.id} value={c.id}>
-                      {c.nome}
-                    </option>
-                  )
-                  )
-                }
+              <div>
+                <label className='block text-[10px] font-black text-gray-400 mb-1 uppercase'>Conta de Destino/Origem</label>
+                <select
+                  value={conta_financeira_id}
+                  onChange={e => setContaFinanceiraId(e.target.value)}
+                  className="w-full bg-gray-50 border-2 border-transparent focus:border-amber-500 focus:bg-amber-50 rounded-xl p-3 text-sm outline-none transition-all"
+                >
+                  <option value="">Selecione a conta</option>
+                  {contas_financeiras.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                </select>
+              </div>
 
-              </select>
+              <button
+                onClick={salvarLancamentos}
+                className="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold hover:bg-black transition-all shadow-lg active:scale-[0.98] mt-2"
+              >
+                Confirmar Lançamento
+              </button>
             </div>
-            <button
-              onClick={salvarLancamentos}
-              type="submit"
-              className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700"
-            >
-              Salvar
-            </button>
           </div>
         </div>
       )}
     </main>
-  )
-}
+  );
+};
 
-export default Financeiro
+export default Financeiro;
