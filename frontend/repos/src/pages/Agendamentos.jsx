@@ -15,7 +15,7 @@ const Agendamentos = () => {
     {
       id: 'dummy-1',
       title: 'Ana Silva (Corte e Escova)',
-      start: '2026-04-24T09:00:00',
+      start: '2026-04-25T09:00:00',
       extendedProps: {
         observacao: 'Corte e Escova',
         colaborador: 'Marcos Oliveira',
@@ -26,7 +26,7 @@ const Agendamentos = () => {
     {
       id: 'dummy-2',
       title: 'Bruno Souza (Barba e Hidratação)',
-      start: '2026-04-24T10:30:00',
+      start: '2026-04-25T10:30:00',
       extendedProps: {
         observacao: 'Barba e Hidratação',
         colaborador: 'Ricardo Santos',
@@ -37,7 +37,7 @@ const Agendamentos = () => {
     {
       id: 'dummy-3',
       title: 'Carla Dias (Coloração)',
-      start: '2026-04-24T14:00:00',
+      start: '2026-04-25T14:00:00',
       extendedProps: {
         observacao: 'Coloração',
         colaborador: 'Marcos Oliveira',
@@ -55,7 +55,41 @@ const Agendamentos = () => {
         cliente: 'Daniel Santos',
         telefone: '(71) 95555-4444'
       }
+    },
+    {
+      id: 'dummy-5',
+      title: 'Daniel Santos',
+      start: '2026-04-25T18:00:00',
+      extendedProps: {
+        observacao: 'Barba e Hidratação',
+        colaborador: 'Marcos Oliveira',
+        cliente: 'test',
+        telefone: '(71) 95555-4444'
+      }
+    },
+    {
+      id: 'dummy-5',
+      title: 'Daniel Santos',
+      start: '2026-04-25T18:00:00',
+      extendedProps: {
+        observacao: 'Barba e Hidratação',
+        colaborador: 'Marcos Oliveira',
+        cliente: 'test',
+        telefone: '(71) 95555-4444'
+      }
+    },
+    {
+      id: 'dummy-5',
+      title: 'Daniel Santos',
+      start: '2026-04-25T18:00:00',
+      extendedProps: {
+        observacao: 'Barba e Hidratação',
+        colaborador: 'Marcos Oliveira',
+        cliente: 'test',
+        telefone: '(71) 95555-4444'
+      }
     }
+    
   ]);
 
   // DUMMY DATA DA LISTA DE ESPERA
@@ -69,6 +103,27 @@ const Agendamentos = () => {
   },
   {
     id: 'wait-2',
+    cliente: 'João Pedro',
+    servico: 'Corte Degradê',
+    telefone: '(75) 97777-2222',
+    observacao: 'Horário Preferido: 14h'
+  },
+  {
+    id: 'wait-3',
+    cliente: 'João Pedro',
+    servico: 'Corte Degradê',
+    telefone: '(75) 97777-2222',
+    observacao: 'Horário Preferido: 14h'
+  },
+  {
+    id: 'wait-4',
+    cliente: 'João Pedro',
+    servico: 'Corte Degradê',
+    telefone: '(75) 97777-2222',
+    observacao: 'Horário Preferido: 14h'
+  },
+  {
+    id: 'wait-5',
     cliente: 'João Pedro',
     servico: 'Corte Degradê',
     telefone: '(75) 97777-2222',
@@ -172,7 +227,7 @@ const Agendamentos = () => {
   //   }
   // };
 
-// FUNÇÃO DO MODAL DED CLIQUE NA DATA :D
+// FUNÇÃO DO MODAL DE CLIQUE NA DATA :D
   const handleDateClick = (info) => {
     const eventoEncontrado = eventos.find((e) => e.start.startsWith(info.dateStr));
     if (eventoEncontrado) {
@@ -224,41 +279,57 @@ const enviarLinkPagamento = (evento) => {
 
 // FUNÇÃO DE PERSONALIZAÇÃO DO EVENTO NA AGENDA DO DIA
 const renderEventContent = (eventInfo) => {
+  const { colaborador, observacao, cliente } = eventInfo.event.extendedProps;
+
   return (
-    <div className="flex justify-between w-full group items-center">
-      <div className="flex flex-col items-center">
-        <b className="text-amber-900 text-[10px] align-middle items-start">{eventInfo.timeText}</b>
-        <span className="text-gray-800 font-medium text-base">{eventInfo.event.title}</span>
-      </div>
+    /* Usamos w-full e justify-between para os botões irem para o final da linha */
+    <div className="flex justify-between items-center w-full group pl-1">
       
-      {/* Botões que aparecem no final da linha */}
-      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+      {/* Container das informações (Nome, Serviço, Colaborador) */}
+      <div className="flex flex-col min-w-0 flex-1">
+        {/* Nome do Cliente - Ocupa a linha principal */}
+        <span className="text-gray-800 font-bold text-sm truncate leading-tight">
+          {cliente || eventInfo.event.title}
+        </span>
+        
+        {/* Linha de detalhes (Serviço e Colaborador) */}
+        <div className="flex gap-2 items-center leading-none mt-0.5">
+           <span className="text-[10px] text-amber-700 font-medium truncate uppercase">
+             {observacao || 'Procedimento'}
+           </span>
+           <span className="text-[10px] text-gray-400 truncate">
+             • {colaborador || 'S/ Profissional'}
+           </span>
+        </div>
+      </div>
+
+      {/* Botões de Ação - Ficam flutuando à direita no hover */}
+      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity ml-4">
         <button 
-          onClick={(e) => {
+          onClick={(e) => { 
             e.stopPropagation(); 
-            // Passamos o objeto do evento do FullCalendar
-            enviarLinkPagamento(eventInfo.event);
+            enviarLinkPagamento(eventInfo.event); 
           }}
-          className="p-1.5 bg-green-100 text-green-700 rounded hover:bg-green-200 transition-all"
-          title='Enviar Link de Pagamento'
+          className="p-1.5 text-green-600 hover:bg-green-50 rounded-md transition-colors"
+          title='Enviar WhatsApp'
         >
-          <i className="bi bi-whatsapp"></i>
+          <i className="bi bi-whatsapp text-sm"></i>
         </button>
         
         <button 
-          onClick={(e) => {
-            e.stopPropagation();
-            toast.error("Agendamento cancelado");
+          onClick={(e) => { 
+            e.stopPropagation(); 
+            toast.error("Agendamento cancelado"); 
           }}
-          className="p-1.5 bg-red-100 text-red-700 rounded hover:bg-red-200"
+          className="p-1.5 text-red-500 hover:bg-red-50 rounded-md transition-colors"
           title="Cancelar"
         >
-          <i className="bi bi-trash"></i>
+          <i className="bi bi-trash text-sm"></i>
         </button>
       </div>
     </div>
   );
-}; 
+};
 
 // Função para clique no EVENTO (Lista ou Calendário)
   const handleEventClick = (info) => {
@@ -335,7 +406,7 @@ const avisarVagaDisponivel = (pessoaEspera) => {
         </div>
 
         {/* Calendário Mensal */}
-        <div className='flex flex-1 gap-2 bg-transparent h-full'>
+        <div className='flex flex-1 gap-2 bg-transparent h-full max-h-[450px]'>
           {/* COLUNA ESQUERDA: Agenda Estilo Tabela (Ocupa 70%) */}
           <div className='flex-[3] bg-amber-50 rounded-lg shadow-md border border-gray-200 flex flex-col'>
             {/* HEADER DO CARD COM O BOTÃO DE ALTERNÂNCIA */}
@@ -374,7 +445,7 @@ const avisarVagaDisponivel = (pessoaEspera) => {
           {/* COLUNA DIREITA: LISTA DE ESPERA */}
           <div className='flex-1 flex flex-col gap-4 max-w-[500px]'>
             {/* Card de Informação Rápida */}
-            <div className="bg-amber-50 border p-3 rounded-lg shadow-md">
+            <div className="bg-amber-50 border p-3 rounded-lg shadow-md ">
               <h4 className="text-[10px] font-black text-gray-800 uppercase mb-2">Resumo</h4>
               <div className="flex justify-between text-sm">
                   <span className="text-gray-700 font-bold text-base uppercase">Agendamentos MENSAIS </span>
@@ -390,7 +461,7 @@ const avisarVagaDisponivel = (pessoaEspera) => {
                   </h3>
                 </div>
                 
-                <div className='p-2 flex flex-col gap-2 overflow-y-auto max-h-[500px] bg-transparent'>
+                <div className='p-2 flex flex-col gap-2 overflow-y-scroll max-h-[300px] bg-transparent '>
                   {listaEspera.length === 0 ? (
                     <p className='text-center text-gray-400 text-xs py-10'>Ninguém na espera</p>
                   ) : (
