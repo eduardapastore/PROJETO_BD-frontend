@@ -391,7 +391,7 @@ const avisarVagaDisponivel = (pessoaEspera) => {
       <Navbar className="w-1/3"/>
       <Toaster position="top-center" />
 
-      <div className="p-6 flex-1 overflow-y-auto bg-transparent">
+      <div className="p-6 flex-1 overflow-y-hidden bg-transparent">
         <div className='flex justify-between items-center mb-6'>
           <h2 className='font-bold text-2xl text-gray-800'>Agendamentos</h2>
           <div className='flex gap-2'>
